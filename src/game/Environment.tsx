@@ -1,5 +1,7 @@
 import { Container, Graphics } from '@pixi/react';
 import { useEffect, useState } from 'react';
+import Character from './Character';
+import Enemy from './Enemy';
 
 type EnvironmentProps = {
   size: { width: number; height: number };
@@ -43,19 +45,26 @@ const Environment = ({ size }: EnvironmentProps) => {
             g.drawRect(0, 0, defenseSize.width, defenseSize.height);
           }}
         />
-        <Graphics
-          draw={(g) => {
-            g.clear();
-            g.lineStyle(1, { r: 30, g: 230, b: 70 });
-            g.drawRect(
-              (defenseSize.width - characterSize.width) / 2,
-              (defenseSize.height - characterSize.height) / 2,
-              characterSize.width,
-              characterSize.height
-            );
+        <Character
+          position={{
+            x: (defenseSize.width - characterSize.width) / 2,
+            y: (defenseSize.height - characterSize.height) / 2,
           }}
+          size={characterSize}
         />
       </Container>
+      <Enemy
+        position={{ x: size.width - 300, y: size.height - 300 }}
+        size={{ width: 30, height: 30 }}
+      />
+      <Enemy
+        position={{ x: size.width - 200, y: size.height - 200 }}
+        size={{ width: 30, height: 30 }}
+      />
+      <Enemy
+        position={{ x: size.width - 100, y: size.height - 300 }}
+        size={{ width: 30, height: 30 }}
+      />
     </Container>
   );
 };
