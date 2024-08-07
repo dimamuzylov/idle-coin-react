@@ -1,8 +1,9 @@
 import { Graphics } from '@pixi/react';
+import { GameElementPosition, GameElementSize } from '../types/game';
 
 type EnemyProps = {
-  size: { width: number; height: number };
-  position: { x: number; y: number };
+  size: GameElementSize;
+  position: GameElementPosition;
 };
 
 const Enemy = ({ size, position }: EnemyProps) => {

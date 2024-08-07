@@ -1,9 +1,9 @@
 import { Container, Graphics } from '@pixi/react';
 import { ReactNode } from 'react';
-import { EnvironmentSize } from '../types/game';
+import { GameElementSize } from '../types/game';
 
 type EnvironmentProps = {
-  environmentSize: EnvironmentSize;
+  environmentSize: GameElementSize;
   children?: ReactNode;
 };
 
