@@ -6,13 +6,14 @@ import {
   useImperativeHandle,
   useState,
 } from 'react';
+import { EnvironmentSize } from '../types/game';
 
 type DefenseProps = {
-  environmentSize: { width: number; height: number };
+  environmentSize: EnvironmentSize;
   children?: ReactNode;
 };
 
-const calculateDefenseSize = (size: { width: number; height: number }) => ({
+const calculateDefenseSize = (size: EnvironmentSize) => ({
   width: size.width / 6,
   height: size.height / 4,
 });

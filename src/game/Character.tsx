@@ -1,8 +1,9 @@
 import { Graphics } from '@pixi/react';
 import { useEffect, useState } from 'react';
+import { EnvironmentSize } from '../types/game';
 
 type CharacterProps = {
-  environmentSize: { width: number; height: number };
+  environmentSize: EnvironmentSize;
 };
 
 const calculateCharacterSize = (size: { width: number; height: number }) => ({

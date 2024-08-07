@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Defense from './Defense';
 import Character from './Character';
 import Enemy from './Enemy';
+import { useGameStore } from '../store/game';
 
 const calculateSize = () => ({
   width: document.body.clientWidth,
@@ -12,7 +13,25 @@ const calculateSize = () => ({
 
 const Game = () => {
   const [size, setSize] = useState(calculateSize());
+  const enemiesCount = useGameStore((state) => state.enemiesCount);
+  const enemies = useGameStore((state) => state.enemies);
+  const addEnemy = useGameStore((state) => state.addEnemy);
+  const updateEnemyPosition = useGameStore(
+    (state) => state.updateEnemyPosition
+  );
   const defenseRef = useRef(null);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (enemiesCount > 0) {
+      interval = setInterval(() => {
+        addEnemy(size);
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [enemiesCount]);
 
   useLayoutEffect(() => {
     const updateSize = () => setSize(calculateSize());
@@ -24,26 +43,27 @@ const Game = () => {
   useEffect(() => {}, [defenseRef.current]);
 
   return (
-    <Stage width={size.width} height={size.height}>
+    <Stage
+      width={size.width}
+      height={size.height}
+      onMount={(app) => {
+        app.ticker.add((delta) => {
+          const stopPosition = defenseRef.current
+            ? defenseRef.current.width
+            : 0;
+          updateEnemyPosition(delta, stopPosition);
+        });
+      }}
+    >
       <Environment environmentSize={size}>
         <Defense environmentSize={size} ref={defenseRef}>
           {defenseRef.current && (
             <Character environmentSize={defenseRef.current} />
           )}
         </Defense>
-
-        <Enemy
-          position={{ x: size.width - 300, y: size.height - 300 }}
-          size={{ width: 30, height: 30 }}
-        />
-        <Enemy
-          position={{ x: size.width - 200, y: size.height - 200 }}
-          size={{ width: 30, height: 30 }}
-        />
-        <Enemy
-          position={{ x: size.width - 100, y: size.height - 300 }}
-          size={{ width: 30, height: 30 }}
-        />
+        {enemies.map((enemy, index) => (
+          <Enemy position={enemy.position} size={enemy.size} key={index} />
+        ))}
       </Environment>
     </Stage>
   );
