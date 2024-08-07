@@ -1,12 +1,18 @@
-import { Graphics, Stage } from '@pixi/react';
+import { Stage } from '@pixi/react';
 import Environment from './Environment';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import Defense from './Defense';
 import Character from './Character';
 import Enemy from './Enemy';
-import { useGameStore } from '../store/game';
 import { GameElementSize } from '../types/game';
 import Bullet from './Bullet';
+import { GameContext } from '../context/game/GameContext';
 
 const calculateSize = (): GameElementSize => ({
   width: document.body.clientWidth,
@@ -15,38 +21,26 @@ const calculateSize = (): GameElementSize => ({
 
 const Game = () => {
   const [size, setSize] = useState(calculateSize());
-  const enemiesCount = useGameStore((state) => state.enemiesCount);
-  const enemies = useGameStore((state) => state.enemies);
-  const addEnemy = useGameStore((state) => state.addEnemy);
-  const updateEnemyPosition = useGameStore(
-    (state) => state.updateEnemyPosition
-  );
-  const bullets = useGameStore((state) => state.bullets);
-  const addBullet = useGameStore((state) => state.addBullet);
-  const updateBullets = useGameStore((state) => state.updateBullets);
+  const gameContext = useContext(GameContext);
+
   const defenseRef = useRef(null);
   const characterRef = useRef(null);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (enemiesCount > 0) {
-      interval = setInterval(() => {
-        addEnemy(size);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [enemiesCount]);
+    gameContext.setEnvironment({ size });
+  }, [size.width]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (enemiesCount > 0) {
-      interval = setInterval(() => {
-        const characterPosition = characterRef.current.transform.worldTransform;
-        addBullet({ x: characterPosition.tx, y: characterPosition.ty });
-      }, 200);
+    const characterPosition = characterRef.current?.transform.worldTransform;
+    if (characterPosition) {
+      gameContext.setCharacter({
+        position: {
+          x: characterPosition.tx,
+          y: characterPosition.ty,
+        },
+      });
     }
-    return () => clearInterval(interval);
-  }, [enemiesCount]);
+  }, [characterRef.current]);
 
   useLayoutEffect(() => {
     const updateSize = () => setSize(calculateSize());
@@ -55,7 +49,7 @@ const Game = () => {
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  useEffect(() => {}, [defenseRef.current, characterRef.current]);
+  useEffect(() => {}, [defenseRef.current]);
 
   return (
     <Stage
@@ -66,8 +60,8 @@ const Game = () => {
           const stopPosition = defenseRef.current
             ? defenseRef.current.width
             : 0;
-          updateEnemyPosition(delta, stopPosition);
-          updateBullets(delta);
+          gameContext.updateEnemies(delta, stopPosition);
+          gameContext.updateBullets(delta);
         });
       }}
     >
@@ -80,17 +74,10 @@ const Game = () => {
             />
           )}
         </Defense>
-        {bullets.map((bullet, index) => (
+        {gameContext.bullets.map((bullet, index) => (
           <Bullet position={bullet.position} key={index} />
         ))}
-        <Graphics
-          draw={(g) => {
-            g.clear();
-            g.lineStyle(1, { r: 30, g: 230, b: 70 });
-            g.drawRect(size.width / 2, 10, 1, size.height - 20);
-          }}
-        />
-        {enemies.map((enemy, index) => (
+        {gameContext.enemies.map((enemy, index) => (
           <Enemy position={enemy.position} size={enemy.size} key={index} />
         ))}
       </Environment>
