@@ -1,25 +1,32 @@
-import { IPointData, Texture } from 'pixi.js';
-import { Actor } from './Actor';
+import { Texture } from 'pixi.js';
+import { Actor, ActorConfigMetrics, ActorConfigTexture } from './Actor';
 import { Projectile } from './Projectile';
+
+export interface CharacterConfigMetrics extends ActorConfigMetrics {
+  power: number;
+}
+export interface CharacterConfigTexture extends ActorConfigTexture {
+  projectile: Texture;
+}
+export type CharacterConfig = {
+  metrics: CharacterConfigMetrics;
+  textures: CharacterConfigTexture;
+  target?: Character;
+};
 
 export class Character extends Actor {
   readonly #spots: Projectile[] = [];
   readonly #hits = new Set<string>(); // Set of projectile ids
   #projectileTexture: Texture;
   #health = 100;
+  #power = 10;
+  #killed = false;
 
-  constructor(
-    position: IPointData,
-    width: number,
-    height: number,
-    texture: Texture,
-    projectileTexture: Texture,
-    target?: Character,
-    speed?: number
-  ) {
-    super(position, width, height, texture, target, speed);
+  constructor(config: CharacterConfig) {
+    super(config);
 
-    this.#projectileTexture = projectileTexture;
+    this.#power = config.metrics.power;
+    this.#projectileTexture = config.textures.projectile;
   }
 
   get spots(): Projectile[] {
@@ -34,18 +41,30 @@ export class Character extends Actor {
     return this.#health;
   }
 
+  get killed(): boolean {
+    return this.#killed;
+  }
+
+  kill(): void {
+    this.#killed = true;
+  }
+
   attack(target: Character): void {
-    const spot = new Projectile(
-      {
-        x: this.worldTransform.tx + this.width / 2,
-        y: this.worldTransform.ty + this.height / 2,
+    const spot = new Projectile({
+      metrics: {
+        position: {
+          x: this.worldTransform.tx + this.width / 2,
+          y: this.worldTransform.ty + this.height / 2,
+        },
+        width: 20,
+        height: 20,
+        speed: 4,
       },
-      20,
-      20,
-      this.#projectileTexture,
+      textures: {
+        actor: this.#projectileTexture,
+      },
       target,
-      4
-    );
+    });
     target.hit(spot);
     this.#spots.push(spot);
   }
@@ -70,8 +89,8 @@ export class Character extends Actor {
       if (target && spot.isCollided) {
         spot.destroy();
         target.hits.delete(spot.id);
-        target.decreaseHealth(10);
-        target.updateHealthBar(10);
+        target.decreaseHealth(this.#power);
+        target.updateHealthBar(this.#power);
       }
       if (target && target.health <= 0) {
         target.kill();

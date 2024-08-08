@@ -1,28 +1,16 @@
-import { IPointData, Texture } from 'pixi.js';
-import { Character } from './Character';
+import { Character, CharacterConfig } from './Character';
 import { Health } from './Health';
+
+interface EnemyConfig extends CharacterConfig {
+  target: Character;
+}
 
 export class Enemy extends Character {
   id = Math.random().toString(36).substr(2, 9);
   #healthBar: Health;
 
-  constructor(
-    position: IPointData,
-    width: number,
-    height: number,
-    target: Character,
-    texture: Texture,
-    projectileTexture: Texture
-  ) {
-    super(
-      position,
-      width,
-      height,
-      texture,
-      projectileTexture,
-      target,
-      Math.random() * (1 - 0.5) + 0.5
-    );
+  constructor(config: EnemyConfig) {
+    super(config);
 
     this.#healthBar = new Health({
       x: this.width * 2,

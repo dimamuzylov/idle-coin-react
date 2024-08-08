@@ -1,19 +1,19 @@
-import { IPointData, Texture } from 'pixi.js';
-import { Actor } from './Actor';
+import { Actor, ActorConfig, ActorConfigMetrics } from './Actor';
 import { Character } from './Character';
+
+interface ProjectileConfigMetrics extends ActorConfigMetrics {
+  speed: number;
+}
+interface ProjectileConfig extends ActorConfig {
+  metrics: ProjectileConfigMetrics;
+  target: Character;
+}
 
 export class Projectile extends Actor {
   id = Math.random().toString(36).substr(2, 9);
 
-  constructor(
-    position: IPointData,
-    width: number,
-    height: number,
-    texture: Texture,
-    target: Character,
-    speed: number
-  ) {
-    super(position, width, height, texture, target, speed);
+  constructor(config: ProjectileConfig) {
+    super(config);
   }
 
   get isCollided(): boolean {

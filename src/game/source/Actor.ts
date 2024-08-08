@@ -1,32 +1,31 @@
 import { IPointData, Sprite, Texture } from 'pixi.js';
 
+export type ActorConfigTexture = {
+  actor: Texture;
+};
+export type ActorConfigMetrics = {
+  position: IPointData;
+  width: number;
+  height: number;
+  speed?: number;
+};
+export type ActorConfig = {
+  metrics: ActorConfigMetrics;
+  textures: ActorConfigTexture;
+  target?: Actor;
+};
+
 export class Actor extends Sprite {
   target?: Actor;
-  #killed = false;
   protected speed: number;
 
-  constructor(
-    position: IPointData,
-    width: number,
-    height: number,
-    texture: Texture,
-    target?: Actor,
-    speed?: number
-  ) {
-    super(texture);
+  constructor(config: ActorConfig) {
+    super(config.textures.actor);
 
-    this.target = target;
-    this.position = position;
-    this.width = width;
-    this.height = height;
-    this.speed = speed || 0;
-  }
-
-  get killed(): boolean {
-    return this.#killed;
-  }
-
-  kill(): void {
-    this.#killed = true;
+    this.target = config.target;
+    this.position = config.metrics.position;
+    this.width = config.metrics.width;
+    this.height = config.metrics.height;
+    this.speed = config.metrics.speed || 0;
   }
 }

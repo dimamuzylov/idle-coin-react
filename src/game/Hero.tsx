@@ -18,13 +18,18 @@ const PixiComponentHero = PixiComponent('Hero', {
     const projectileTexture = Texture.from(
       new URL('./assets/projectile.png', import.meta.url).toString()
     );
-    return new Hero(
-      props.position,
-      props.width,
-      props.height,
-      texture,
-      projectileTexture
-    );
+    return new Hero({
+      metrics: {
+        position: props.position,
+        width: props.width,
+        height: props.height,
+        power: 50,
+      },
+      textures: {
+        actor: texture,
+        projectile: projectileTexture,
+      },
+    });
   },
 });
 

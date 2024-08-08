@@ -22,19 +22,25 @@ const EnemyGenerator = () => {
 
     interval = setInterval(() => {
       if (hero) {
-        const enemy = new Enemy(
-          {
-            x: app.screen.width,
-            y: Math.floor(
-              Math.random() * (app.screen.height - 40 - 20 + 1) + 20
-            ),
+        const enemy = new Enemy({
+          metrics: {
+            position: {
+              x: app.screen.width,
+              y: Math.floor(
+                Math.random() * (app.screen.height - 40 - 20 + 1) + 20
+              ),
+            },
+            width: 20,
+            height: 20,
+            power: 5,
+            speed: Math.random() * (1 - 0.5) + 0.5,
           },
-          20,
-          20,
-          hero,
-          texture,
-          projectileTexture
-        );
+          textures: {
+            actor: texture,
+            projectile: projectileTexture,
+          },
+          target: hero,
+        });
         app.stage.addChild(enemy);
       }
     }, 1000);
