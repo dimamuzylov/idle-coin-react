@@ -70,7 +70,8 @@ export class Character extends Actor {
       if (target && spot.isCollided) {
         spot.destroy();
         target.hits.delete(spot.id);
-        target.decreaseHealth();
+        target.decreaseHealth(10);
+        target.updateHealthBar(10);
       }
       if (target && target.health <= 0) {
         target.kill();
@@ -85,7 +86,12 @@ export class Character extends Actor {
     }
   }
 
-  private decreaseHealth(): void {
-    this.#health -= 100;
+  /**
+   * Abstract method to update the health bar.
+   */
+  updateHealthBar(_: number): void {}
+
+  private decreaseHealth(value: number): void {
+    this.#health -= value;
   }
 }
