@@ -15,7 +15,7 @@ export type ActorConfig = {
   target: Actor | undefined;
 };
 
-export class Actor<T = unknown> extends Sprite {
+export abstract class Actor<T = unknown> extends Sprite {
   target: T;
   protected speed: number;
 

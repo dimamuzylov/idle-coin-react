@@ -13,9 +13,6 @@ const EnemyGeneratorEffects = () => {
   const texture = Texture.from(
     new URL('./assets/enemy.png', import.meta.url).toString()
   );
-  const projectileTexture = Texture.from(
-    new URL('./assets/projectile.png', import.meta.url).toString()
-  );
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -42,7 +39,6 @@ const EnemyGeneratorEffects = () => {
           },
           textures: {
             actor: texture,
-            projectile: projectileTexture,
           },
           target: hero,
         });

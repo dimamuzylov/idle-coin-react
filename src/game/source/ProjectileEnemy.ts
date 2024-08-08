@@ -9,7 +9,7 @@ export class ProjectileEnemy extends Projectile {
    * ************************************************************
    */
 
-  override get isCollided(): boolean {
+  get isCollided(): boolean {
     if (!this.target) return true;
     return this.position.x >= this.target.position.x;
   }
@@ -21,7 +21,7 @@ export class ProjectileEnemy extends Projectile {
    *                                                            *
    * ************************************************************
    */
-  override move(delta: number): void {
+  move(delta: number): void {
     this.position.x -= delta * this.speed;
   }
 }

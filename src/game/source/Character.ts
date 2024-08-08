@@ -1,22 +1,17 @@
-import { Container, Texture } from 'pixi.js';
-import { Actor, ActorConfigMetrics, ActorConfigTexture } from './Actor';
+import { Container } from 'pixi.js';
+import { Actor, ActorConfig, ActorConfigMetrics } from './Actor';
 import { Projectile, ProjectileConfig } from './Projectile';
 
 export interface CharacterConfigMetrics extends ActorConfigMetrics {
   power: number;
   attackRange: number;
 }
-export interface CharacterConfigTexture extends ActorConfigTexture {
-  projectile: Texture;
-}
-export type CharacterConfig = {
+export interface CharacterConfig extends ActorConfig {
   metrics: CharacterConfigMetrics;
-  textures: CharacterConfigTexture;
   target: Character | undefined;
-};
+}
 
 export abstract class Character extends Actor<Character> {
-  #projectileTexture: Texture;
   #health = 100;
   #power = 10;
   #attackRange = 0;
@@ -26,7 +21,6 @@ export abstract class Character extends Actor<Character> {
 
     this.#power = config.metrics.power;
     this.#attackRange = config.metrics.attackRange;
-    this.#projectileTexture = config.textures.projectile;
   }
 
   /*
@@ -67,10 +61,7 @@ export abstract class Character extends Actor<Character> {
    * ************************************************************
    */
   attack(target: Character): void {
-    const projectileConfig = this.createProjectileConfig(
-      target,
-      this.#projectileTexture
-    );
+    const projectileConfig = this.createProjectileConfig(target);
     const spot = this.generateProjectile(projectileConfig);
     const root = this.getRoot(this);
     root.addChild(spot);
@@ -107,8 +98,7 @@ export abstract class Character extends Actor<Character> {
    */
   protected abstract generateProjectile(_: ProjectileConfig): Projectile;
   protected abstract createProjectileConfig(
-    target: Character,
-    texture: Texture
+    target: Character
   ): ProjectileConfig;
 
   /*

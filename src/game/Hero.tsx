@@ -11,12 +11,6 @@ type HeroProps = {
 
 export default PixiComponent('Hero', {
   create: (props: HeroProps) => {
-    const texture = Texture.from(
-      new URL('./assets/hero.png', import.meta.url).toString()
-    );
-    const projectileTexture = Texture.from(
-      new URL('./assets/projectile.png', import.meta.url).toString()
-    );
     return new Hero({
       metrics: {
         position: props.position,
@@ -26,9 +20,11 @@ export default PixiComponent('Hero', {
         attackRange: props.attackRange,
       },
       textures: {
-        actor: texture,
-        projectile: projectileTexture,
+        actor: Texture.from(
+          new URL('./assets/hero.png', import.meta.url).toString()
+        ),
       },
+      target: undefined,
     });
   },
 });

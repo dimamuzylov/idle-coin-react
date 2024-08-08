@@ -14,10 +14,7 @@ export class Hero extends Character {
   protected generateProjectile(config: ProjectileConfig): ProjectileHero {
     return new ProjectileHero(config);
   }
-  protected createProjectileConfig(
-    target: Character,
-    texture: Texture
-  ): ProjectileConfig {
+  protected createProjectileConfig(target: Character): ProjectileConfig {
     return {
       metrics: {
         position: {
@@ -30,7 +27,9 @@ export class Hero extends Character {
         power: this.power,
       },
       textures: {
-        actor: texture,
+        actor: Texture.from(
+          new URL('../assets/projectile.png', import.meta.url).toString()
+        ),
       },
       target,
     };
