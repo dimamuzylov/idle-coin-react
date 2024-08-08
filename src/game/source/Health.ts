@@ -13,6 +13,13 @@ export class Health extends Graphics {
     this.endFill();
   }
 
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PUBLIC METHODS                       *
+   *                                                            *
+   * ************************************************************
+   */
   updateHealth(value: number) {
     this.clear();
     this.beginFill(0x000000);

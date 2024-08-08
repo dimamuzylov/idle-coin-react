@@ -1,7 +1,18 @@
-import { Character, CharacterConfig } from './Character';
+import { Texture } from 'pixi.js';
+import {
+  Character,
+  CharacterConfig,
+  CharacterConfigMetrics,
+} from './Character';
 import { Health } from './Health';
+import { ProjectileConfig } from './Projectile';
+import { ProjectileEnemy } from './ProjectileEnemy';
 
+interface EnemyConfigMetrics extends CharacterConfigMetrics {
+  speed: number;
+}
 interface EnemyConfig extends CharacterConfig {
+  metrics: EnemyConfigMetrics;
   target: Character;
 }
 
@@ -19,14 +30,65 @@ export class Enemy extends Character {
     this.addChild(this.#healthBar);
   }
 
-  moveForward(delta: number): void {
-    if (!this.target) return;
-    const stopPosition = this.target.position.x + this.target.width;
-    const x = this.position.x - delta * this.speed;
-    this.position.x = stopPosition ? (x > stopPosition ? x : stopPosition) : x;
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PUBLIC GETTERS                       *
+   *                                                            *
+   * ************************************************************
+   */
+  get isCollided(): boolean {
+    return (
+      this.target.position.x + this.target.width >=
+      this.position.x - this.attackRange
+    );
   }
 
-  override updateHealthBar(): void {
-    this.#healthBar.updateHealth(this.health);
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PUBLIC METHODS                       *
+   *                                                            *
+   * ************************************************************
+   */
+  move(delta: number): void {
+    if (!this.target) return;
+    this.position.x -= delta * this.speed;
+  }
+
+  updateHealthBar(health: number): void {
+    this.#healthBar.updateHealth(health);
+  }
+
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PROTECTED METHODS                    *
+   *                                                            *
+   * ************************************************************
+   */
+  protected generateProjectile(config: ProjectileConfig): ProjectileEnemy {
+    return new ProjectileEnemy(config);
+  }
+  protected createProjectileConfig(
+    target: Character,
+    texture: Texture
+  ): ProjectileConfig {
+    return {
+      metrics: {
+        position: {
+          x: this.worldTransform.tx - this.width / 2,
+          y: this.worldTransform.ty - this.height / 2,
+        },
+        width: 20,
+        height: 20,
+        speed: 2,
+        power: this.power,
+      },
+      textures: {
+        actor: texture,
+      },
+      target,
+    };
   }
 }

@@ -1,7 +1,8 @@
 import { Stage } from '@pixi/react';
 import { useLayoutEffect, useState } from 'react';
 import Hero from './Hero';
-import EnemyGenerator from './EnemyGenerator';
+import EnemyGeneratorEffects from './EnemyGeneratorEffects';
+import CharacterEffects from './CharacterEffects';
 
 const calculateSize = () => ({
   width: document.body.clientWidth,
@@ -24,8 +25,10 @@ const Game = () => {
         position={{ x: size.width / 50, y: size.height / 2.5 }}
         width={50}
         height={50}
+        attackRange={size.width}
       />
-      <EnemyGenerator />
+      <EnemyGeneratorEffects />
+      <CharacterEffects />
     </Stage>
   );
 };

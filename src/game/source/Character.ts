@@ -1,9 +1,10 @@
-import { Texture } from 'pixi.js';
+import { Container, Texture } from 'pixi.js';
 import { Actor, ActorConfigMetrics, ActorConfigTexture } from './Actor';
-import { Projectile } from './Projectile';
+import { Projectile, ProjectileConfig } from './Projectile';
 
 export interface CharacterConfigMetrics extends ActorConfigMetrics {
   power: number;
+  attackRange: number;
 }
 export interface CharacterConfigTexture extends ActorConfigTexture {
   projectile: Texture;
@@ -11,106 +12,117 @@ export interface CharacterConfigTexture extends ActorConfigTexture {
 export type CharacterConfig = {
   metrics: CharacterConfigMetrics;
   textures: CharacterConfigTexture;
-  target?: Character;
+  target: Character | undefined;
 };
 
-export class Character extends Actor {
-  readonly #spots: Projectile[] = [];
-  readonly #hits = new Set<string>(); // Set of projectile ids
+export abstract class Character extends Actor<Character> {
   #projectileTexture: Texture;
   #health = 100;
   #power = 10;
-  #killed = false;
+  #attackRange = 0;
 
   constructor(config: CharacterConfig) {
     super(config);
 
     this.#power = config.metrics.power;
+    this.#attackRange = config.metrics.attackRange;
     this.#projectileTexture = config.textures.projectile;
   }
 
-  get spots(): Projectile[] {
-    return this.#spots;
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PUBLIC GETTERS                       *
+   *                                                            *
+   * ************************************************************
+   */
+  set attackRange(value: number) {
+    this.#attackRange = value;
+  }
+  get attackRange(): Readonly<number> {
+    return this.#attackRange;
   }
 
-  get hits(): Set<string> {
-    return this.#hits;
+  get killed(): boolean {
+    return this.#health <= 0;
+  }
+
+  get power(): Readonly<number> {
+    return this.#power;
   }
 
   get health(): Readonly<number> {
     return this.#health;
   }
 
-  get killed(): boolean {
-    return this.#killed;
+  get isCollided(): boolean {
+    return false;
   }
 
-  kill(): void {
-    this.#killed = true;
-  }
-
-  attack(target: Character): void {
-    const spot = new Projectile({
-      metrics: {
-        position: {
-          x: this.worldTransform.tx + this.width / 2,
-          y: this.worldTransform.ty + this.height / 2,
-        },
-        width: 20,
-        height: 20,
-        speed: 4,
-      },
-      textures: {
-        actor: this.#projectileTexture,
-      },
-      target,
-    });
-    target.hit(spot);
-    this.#spots.push(spot);
-  }
-
-  hit(spot: Projectile): void {
-    this.#hits.add(spot.id);
-  }
-
-  /**
-   * Update the position of the projectiles.
-   * Destroy the projectile if it collides with the target.
-   * Decrease health and destroy the target if health is less than or equal to 0 and hits are empty.
-   * @param delta
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PUBLIC METHODS                       *
+   *                                                            *
+   * ************************************************************
    */
-  realign(delta: number): void {
-    for (let i = 0; i < this.#spots.length; i++) {
-      const spot = this.#spots[i];
-      const target = spot.target as Character | undefined;
+  attack(target: Character): void {
+    const projectileConfig = this.createProjectileConfig(
+      target,
+      this.#projectileTexture
+    );
+    const spot = this.generateProjectile(projectileConfig);
+    const root = this.getRoot(this);
+    root.addChild(spot);
+  }
 
-      spot.move(delta);
-
-      if (target && spot.isCollided) {
-        spot.destroy();
-        target.hits.delete(spot.id);
-        target.decreaseHealth(this.#power);
-        target.updateHealthBar(this.#power);
-      }
-      if (target && target.health <= 0) {
-        target.kill();
-      }
-      if (spot.destroyed) {
-        this.#spots.splice(i, 1);
-        i--;
-      }
-      if (target?.killed && !target.hits.size) {
-        target.destroy();
-      }
-    }
+  hit(power: number): void {
+    if (this.killed) return;
+    this.decreaseHealth(power);
+    this.updateHealthBar(this.#health);
   }
 
   /**
-   * Abstract method to update the health bar.
+   * Update the health bar of the character.
+   * @param value The value to update the health bar.
    */
   updateHealthBar(_: number): void {}
+  /**
+   * Move the character.
+   * @param delta The time delta.
+   */
+  move(_: number): void {}
 
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PROTECTED METHODS                    *
+   *                                                            *
+   * ************************************************************
+   */
+
+  /**
+   * Generate a projectile.
+   * @param config The projectile configuration.
+   */
+  protected abstract generateProjectile(_: ProjectileConfig): Projectile;
+  protected abstract createProjectileConfig(
+    target: Character,
+    texture: Texture
+  ): ProjectileConfig;
+
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PRIVATE METHODS                      *
+   *                                                            *
+   * ************************************************************
+   */
   private decreaseHealth(value: number): void {
     this.#health -= value;
+  }
+
+  private getRoot(container: Container): Container {
+    return container.parent ? this.getRoot(container.parent) : container;
   }
 }

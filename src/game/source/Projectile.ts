@@ -3,37 +3,46 @@ import { Character } from './Character';
 
 interface ProjectileConfigMetrics extends ActorConfigMetrics {
   speed: number;
+  power: number;
 }
-interface ProjectileConfig extends ActorConfig {
+export interface ProjectileConfig extends ActorConfig {
   metrics: ProjectileConfigMetrics;
   target: Character;
 }
 
-export class Projectile extends Actor {
+export abstract class Projectile extends Actor<Character> {
   id = Math.random().toString(36).substr(2, 9);
+  #power: number;
 
   constructor(config: ProjectileConfig) {
     super(config);
+
+    this.#power = config.metrics.power;
   }
 
-  get isCollided(): boolean {
-    if (!this.target) return true;
-    const distance = Math.sqrt(
-      Math.pow(this.position.x - this.target.position.x, 2) +
-        Math.pow(this.position.y - this.target.position.y, 2)
-    );
-
-    return distance <= 1;
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PUBLIC GETTERS                       *
+   *                                                            *
+   * ************************************************************
+   */
+  abstract get isCollided(): boolean;
+  get power(): Readonly<number> {
+    return this.#power;
   }
 
-  move(delta: number): void {
-    if (!this.target) return;
-    const targetX = this.target.position.x - this.position.x;
-    const targetY = this.target.position.y - this.position.y;
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PUBLIC METHODS                       *
+   *                                                            *
+   * ************************************************************
+   */
 
-    const distance = Math.sqrt(targetX * targetX + targetY * targetY);
-
-    this.position.x += (targetX / distance) * delta * this.speed;
-    this.position.y += (targetY / distance) * delta * this.speed;
-  }
+  /**
+   * Move the projectile to the target
+   * @param delta - The time delta
+   */
+  abstract move(_: number): void;
 }

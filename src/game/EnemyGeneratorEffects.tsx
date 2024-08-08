@@ -1,10 +1,14 @@
-import { useApp, useTick } from '@pixi/react';
+import { useApp } from '@pixi/react';
 import { useEffect } from 'react';
 import { Enemy } from './source/Enemy';
-import { Texture } from 'pixi.js';
+import { Application, Texture } from 'pixi.js';
 import { Hero } from './source/Hero';
 
-const EnemyGenerator = () => {
+const getHero = (app: Application): Hero => {
+  return app.stage.children.find((child) => child instanceof Hero) as Hero;
+};
+
+const EnemyGeneratorEffects = () => {
   const app = useApp();
   const texture = Texture.from(
     new URL('./assets/enemy.png', import.meta.url).toString()
@@ -16,12 +20,12 @@ const EnemyGenerator = () => {
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
-    const hero = app.stage.children.find(
-      (child) => child instanceof Hero
-    ) as Hero;
+    const hero = getHero(app);
 
-    interval = setInterval(() => {
-      if (hero) {
+    if (hero) {
+      interval = setInterval(() => {
+        if (hero.killed) clearInterval(interval);
+
         const enemy = new Enemy({
           metrics: {
             position: {
@@ -34,6 +38,7 @@ const EnemyGenerator = () => {
             height: 20,
             power: 5,
             speed: Math.random() * (1 - 0.5) + 0.5,
+            attackRange: 5,
           },
           textures: {
             actor: texture,
@@ -42,21 +47,12 @@ const EnemyGenerator = () => {
           target: hero,
         });
         app.stage.addChild(enemy);
-      }
-    }, 1000);
+      }, 500);
+    }
 
     return () => clearInterval(interval);
   }, []);
-
-  useTick((delta) => {
-    app.stage.children.forEach((child) => {
-      if (child instanceof Enemy && !child.killed) {
-        child.moveForward(delta);
-      }
-    });
-  });
-
   return <></>;
 };
 
-export default EnemyGenerator;
+export default EnemyGeneratorEffects;

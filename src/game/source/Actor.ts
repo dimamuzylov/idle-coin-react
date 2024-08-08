@@ -12,17 +12,17 @@ export type ActorConfigMetrics = {
 export type ActorConfig = {
   metrics: ActorConfigMetrics;
   textures: ActorConfigTexture;
-  target?: Actor;
+  target: Actor | undefined;
 };
 
-export class Actor extends Sprite {
-  target?: Actor;
+export class Actor<T = unknown> extends Sprite {
+  target: T;
   protected speed: number;
 
   constructor(config: ActorConfig) {
     super(config.textures.actor);
 
-    this.target = config.target;
+    this.target = config.target as T;
     this.position = config.metrics.position;
     this.width = config.metrics.width;
     this.height = config.metrics.height;
