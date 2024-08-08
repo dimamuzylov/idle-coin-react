@@ -1,7 +1,7 @@
-import GameScreen from './screens/Game';
+import Game from './game';
 
 const App = () => {
-  return <GameScreen />;
+  return <Game />;
 };
 
 export default App;
