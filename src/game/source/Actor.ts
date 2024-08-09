@@ -41,5 +41,5 @@ export abstract class Actor<T = unknown> extends Sprite {
    * Move the projectile to the target
    * @param delta - The time delta
    */
-  abstract move(_: number): void;
+  move(_: number): void {}
 }

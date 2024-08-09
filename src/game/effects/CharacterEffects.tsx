@@ -1,9 +1,10 @@
 import { Application } from 'pixi.js';
 import { useEffect } from 'react';
-import { Enemy } from './source/Enemy';
-import { Hero } from './source/Hero';
+import { Enemy } from '../source/Enemy';
 import { useApp } from '@pixi/react';
-import { Projectile } from './source/Projectile';
+import { Projectile } from '../source/Projectile';
+import { findHeroObject } from '../utils/PixiApplicationUtils';
+import { useGameStore } from '../store/game';
 
 const getClosestEnemy = (app: Application): Enemy | undefined => {
   let closestEnemyDistance = Infinity;
@@ -47,23 +48,23 @@ const getClosestEnemy = (app: Application): Enemy | undefined => {
   return enemy;
 };
 
-const getHero = (app: Application): Hero => {
-  return app.stage.children.find((child) => child instanceof Hero) as Hero;
-};
-
 const CharacterEffects = () => {
   const app = useApp();
+  const gameStore = useGameStore();
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
-    const hero = getHero(app);
+    const hero = findHeroObject(app);
 
     if (hero) {
       interval = setInterval(() => {
+        if (hero.killed) gameStore.finish();
+        if (hero.killed || !gameStore.playing || gameStore.paused)
+          return clearInterval(interval);
+
         const enemy = getClosestEnemy(app);
         if (enemy) hero.attack(enemy);
-        if (hero.killed) clearInterval(interval);
 
         app.stage.children.forEach((child) => {
           if (child instanceof Enemy && !hero.killed && child.isCollided)
@@ -73,7 +74,7 @@ const CharacterEffects = () => {
     }
 
     return () => clearInterval(interval);
-  }, []);
+  }, [gameStore.playing, gameStore.paused]);
 
   return <></>;
 };

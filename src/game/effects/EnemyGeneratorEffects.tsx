@@ -1,27 +1,23 @@
 import { useApp } from '@pixi/react';
 import { useEffect } from 'react';
-import { Enemy } from './source/Enemy';
-import { Application, Texture } from 'pixi.js';
-import { Hero } from './source/Hero';
-
-const getHero = (app: Application): Hero => {
-  return app.stage.children.find((child) => child instanceof Hero) as Hero;
-};
+import { Enemy } from '../source/Enemy';
+import { Texture } from 'pixi.js';
+import { findHeroObject } from '../utils/PixiApplicationUtils';
+import { useGameStore } from '../store/game';
 
 const EnemyGeneratorEffects = () => {
   const app = useApp();
-  const texture = Texture.from(
-    new URL('./assets/enemy.png', import.meta.url).toString()
-  );
+  const gameStore = useGameStore();
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
-    const hero = getHero(app);
+    const hero = findHeroObject(app);
 
     if (hero) {
       interval = setInterval(() => {
-        if (hero.killed) clearInterval(interval);
+        if (hero.killed || !gameStore.playing || gameStore.paused)
+          return clearInterval(interval);
 
         const enemy = new Enemy({
           metrics: {
@@ -38,7 +34,9 @@ const EnemyGeneratorEffects = () => {
             attackRange: 5,
           },
           textures: {
-            actor: texture,
+            actor: Texture.from(
+              new URL('../assets/enemy.png', import.meta.url).toString()
+            ),
           },
           target: hero,
         });
@@ -47,7 +45,7 @@ const EnemyGeneratorEffects = () => {
     }
 
     return () => clearInterval(interval);
-  }, []);
+  }, [gameStore.playing, gameStore.paused]);
   return <></>;
 };
 

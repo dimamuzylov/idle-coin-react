@@ -1,8 +1,7 @@
 import { Stage } from '@pixi/react';
 import { useLayoutEffect, useState } from 'react';
-import Hero from './Hero';
-import EnemyGeneratorEffects from './EnemyGeneratorEffects';
-import CharacterEffects from './CharacterEffects';
+import GameEffects from './effects';
+import { useGameStore } from './store/game';
 
 const calculateSize = () => ({
   width: document.body.clientWidth,
@@ -11,6 +10,7 @@ const calculateSize = () => ({
 
 const Game = () => {
   const [size, setSize] = useState(calculateSize());
+  const gameStore = useGameStore();
 
   useLayoutEffect(() => {
     const updateSize = () => setSize(calculateSize());
@@ -19,16 +19,23 @@ const Game = () => {
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
+  useLayoutEffect(() => {
+    window.addEventListener('blur', () => {
+      gameStore.pause();
+    });
+    window.addEventListener('focus', () => {
+      gameStore.play();
+    });
+
+    return () => {
+      window.removeEventListener('blur', () => {});
+      window.removeEventListener('focus', () => {});
+    };
+  }, []);
+
   return (
     <Stage width={size.width} height={size.height}>
-      <Hero
-        position={{ x: size.width / 50, y: size.height / 2.5 }}
-        width={50}
-        height={50}
-        attackRange={size.width}
-      />
-      <EnemyGeneratorEffects />
-      <CharacterEffects />
+      <GameEffects />
     </Stage>
   );
 };

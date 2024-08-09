@@ -45,7 +45,7 @@ export abstract class Projectile extends Actor<Character> {
   private tickerUpdate(delta: number) {
     if (this.isCollided) {
       this.target?.hit(this.power);
-      if (this.target?.killed) this.target.parent.removeChild(this.target);
+      if (this.target?.killed) this.target.parent?.removeChild(this.target);
       this.destroy();
       Ticker.shared.remove(this.tickerUpdate, this);
     } else {
