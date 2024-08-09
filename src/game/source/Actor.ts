@@ -28,4 +28,18 @@ export abstract class Actor<T = unknown> extends Sprite {
     this.height = config.metrics.height;
     this.speed = config.metrics.speed || 0;
   }
+
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PUBLIC METHODS                       *
+   *                                                            *
+   * ************************************************************
+   */
+
+  /**
+   * Move the projectile to the target
+   * @param delta - The time delta
+   */
+  abstract move(_: number): void;
 }

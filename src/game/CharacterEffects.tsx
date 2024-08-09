@@ -2,7 +2,7 @@ import { Application } from 'pixi.js';
 import { useEffect } from 'react';
 import { Enemy } from './source/Enemy';
 import { Hero } from './source/Hero';
-import { useApp, useTick } from '@pixi/react';
+import { useApp } from '@pixi/react';
 import { Projectile } from './source/Projectile';
 
 const getClosestEnemy = (app: Application): Enemy | undefined => {
@@ -74,28 +74,6 @@ const CharacterEffects = () => {
 
     return () => clearInterval(interval);
   }, []);
-
-  useTick((delta) => {
-    app.stage.children.forEach((child) => {
-      if (
-        child instanceof Enemy &&
-        !child.killed &&
-        !child.target?.killed &&
-        !child.isCollided
-      )
-        child.move(delta);
-
-      if (child instanceof Projectile) {
-        if (child.isCollided) {
-          child.target?.hit(child.power);
-          child.destroy();
-          if (child.target?.killed) app.stage.removeChild(child.target);
-        } else {
-          child.move(delta);
-        }
-      }
-    });
-  });
 
   return <></>;
 };

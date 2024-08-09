@@ -1,3 +1,4 @@
+import { Ticker } from 'pixi.js';
 import { Actor, ActorConfig, ActorConfigMetrics } from './Actor';
 import { Character } from './Character';
 
@@ -18,6 +19,8 @@ export abstract class Projectile extends Actor<Character> {
     super(config);
 
     this.#power = config.metrics.power;
+
+    Ticker.shared.add(this.tickerUpdate, this);
   }
 
   /*
@@ -35,14 +38,18 @@ export abstract class Projectile extends Actor<Character> {
   /*
    * ************************************************************
    *                                                            *
-   *                       PUBLIC METHODS                       *
+   *                       PRIVATE METHODS                      *
    *                                                            *
    * ************************************************************
    */
-
-  /**
-   * Move the projectile to the target
-   * @param delta - The time delta
-   */
-  abstract move(_: number): void;
+  private tickerUpdate(delta: number) {
+    if (this.isCollided) {
+      this.target?.hit(this.power);
+      if (this.target?.killed) this.target.parent.removeChild(this.target);
+      this.destroy();
+      Ticker.shared.remove(this.tickerUpdate, this);
+    } else {
+      this.move(delta);
+    }
+  }
 }

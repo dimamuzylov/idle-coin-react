@@ -78,11 +78,6 @@ export abstract class Character extends Actor<Character> {
    * @param value The value to update the health bar.
    */
   updateHealthBar(_: number): void {}
-  /**
-   * Move the character.
-   * @param delta The time delta.
-   */
-  move(_: number): void {}
 
   /*
    * ************************************************************

@@ -1,4 +1,4 @@
-import { Texture } from 'pixi.js';
+import { Texture, Ticker } from 'pixi.js';
 import {
   Character,
   CharacterConfig,
@@ -28,6 +28,8 @@ export class Enemy extends Character {
       y: 0,
     });
     this.addChild(this.#healthBar);
+
+    Ticker.shared.add(this.tickerUpdate, this);
   }
 
   /*
@@ -89,5 +91,20 @@ export class Enemy extends Character {
       },
       target,
     };
+  }
+
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PRIVATE METHODS                      *
+   *                                                            *
+   * ************************************************************
+   */
+  private tickerUpdate(delta: number): void {
+    if (!this.killed && !this.target?.killed && !this.isCollided) {
+      this.move(delta);
+    } else {
+      Ticker.shared.remove(this.tickerUpdate, this);
+    }
   }
 }
