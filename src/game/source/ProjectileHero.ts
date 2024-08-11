@@ -15,7 +15,7 @@ export class ProjectileHero extends Projectile {
       Math.pow(this.target.position.x - this.position.x, 2) +
         Math.pow(this.target.position.y - this.position.y, 2)
     );
-    return distance <= 5;
+    return distance <= this.width;
   }
 
   /*
