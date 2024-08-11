@@ -2,6 +2,7 @@ import { Stage } from '@pixi/react';
 import { useLayoutEffect, useState } from 'react';
 import GameEffects from './effects';
 import { useGameStore } from './store/game';
+import Map from './map';
 
 const calculateSize = () => ({
   width: document.body.clientWidth,
@@ -35,6 +36,7 @@ const Game = () => {
 
   return (
     <Stage width={size.width} height={size.height}>
+      <Map containerWidth={size.width} containerHeight={size.height} />
       <GameEffects />
     </Stage>
   );

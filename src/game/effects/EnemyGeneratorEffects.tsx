@@ -4,6 +4,7 @@ import { Enemy } from '../source/Enemy';
 import { Texture } from 'pixi.js';
 import { findHeroObject } from '../utils/PixiApplicationUtils';
 import { useGameStore } from '../store/game';
+import { randomNumberFromTo } from '../utils/RandomUtils';
 
 const EnemyGeneratorEffects = () => {
   const app = useApp();
@@ -23,9 +24,7 @@ const EnemyGeneratorEffects = () => {
           metrics: {
             position: {
               x: app.screen.width,
-              y: Math.floor(
-                Math.random() * (app.screen.height - 40 - 20 + 1) + 20
-              ),
+              y: randomNumberFromTo(20, app.screen.height - 40),
             },
             width: 20,
             height: 20,
