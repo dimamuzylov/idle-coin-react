@@ -1,21 +1,29 @@
 import { useApp } from '@pixi/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Enemy } from '../source/Enemy';
-import { Texture } from 'pixi.js';
+import { Sprite, Texture } from 'pixi.js';
 import { findHeroObject } from '../utils/PixiApplicationUtils';
 import { useGameStore } from '../store/game';
 import { randomNumberFromTo } from '../utils/RandomUtils';
+import { Character } from '../source/Character';
 
 const EnemyGeneratorEffects = () => {
   const app = useApp();
   const gameStore = useGameStore();
+  const [emptySprite, setEmptySprite] = useState<Sprite | null>(null);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
+    if (!emptySprite) {
+      const sprite = new Sprite(Texture.EMPTY);
+      sprite.width = 80;
+      app.stage.addChild(sprite);
+      setEmptySprite(sprite);
+    }
     const hero = findHeroObject(app);
 
-    if (hero) {
+    if (emptySprite && hero) {
       interval = setInterval(() => {
         if (hero.killed || !gameStore.playing || gameStore.paused)
           return clearInterval(interval);
@@ -30,14 +38,14 @@ const EnemyGeneratorEffects = () => {
             height: 20,
             power: 5,
             speed: Math.random() * (1 - 0.5) + 0.5,
-            attackRange: 5,
+            attackRange: 0,
           },
           textures: {
             actor: Texture.from(
               new URL('../assets/enemy.png', import.meta.url).toString()
             ),
           },
-          target: hero,
+          target: emptySprite as Character,
         });
         app.stage.addChild(enemy);
       }, 500);

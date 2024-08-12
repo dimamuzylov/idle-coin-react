@@ -37,10 +37,7 @@ const getClosestEnemy = (app: Application): Enemy | undefined => {
       !child.killed && // Check if the enemy is still alive
       (enemiesHealth[child.id] > 0 || enemiesHealth[child.id] === undefined) // Check if the enemy is still alive after the possible attack
     ) {
-      closestEnemyDistance = Math.sqrt(
-        Math.pow(child.target.position.x - child.position.x, 2) +
-          Math.pow(child.target.position.y - child.position.y, 2)
-      );
+      closestEnemyDistance = child.position.x;
       enemy = child;
     }
   }
