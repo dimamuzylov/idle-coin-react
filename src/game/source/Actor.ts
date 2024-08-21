@@ -1,7 +1,7 @@
-import { IPointData, Sprite, Texture } from 'pixi.js';
+import { AnimatedSprite, IPointData, Texture } from 'pixi.js';
 
 export type ActorConfigTexture = {
-  actor: Texture;
+  actor: Texture[];
 };
 export type ActorConfigMetrics = {
   position: IPointData;
@@ -15,7 +15,7 @@ export type ActorConfig = {
   target: Actor | undefined;
 };
 
-export abstract class Actor<T = unknown> extends Sprite {
+export abstract class Actor<T = unknown> extends AnimatedSprite {
   target: T;
   protected speed: number;
 
@@ -27,6 +27,8 @@ export abstract class Actor<T = unknown> extends Sprite {
     this.width = config.metrics.width;
     this.height = config.metrics.height;
     this.speed = config.metrics.speed || 0;
+
+    this.loop = false;
   }
 
   /*

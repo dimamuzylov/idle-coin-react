@@ -61,7 +61,10 @@ const CharacterEffects = () => {
           return clearInterval(interval);
 
         const enemy = getClosestEnemy(app);
-        if (enemy) hero.attack(enemy);
+        if (enemy) {
+          hero.attack(enemy);
+          clearInterval(interval);
+        }
 
         app.stage.children.forEach((child) => {
           if (child instanceof Enemy && !hero.killed && child.isCollided)

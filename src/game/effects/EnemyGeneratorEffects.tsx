@@ -41,9 +41,21 @@ const EnemyGeneratorEffects = () => {
             attackRange: 0,
           },
           textures: {
-            actor: Texture.from(
-              new URL('../assets/enemy.png', import.meta.url).toString()
-            ),
+            actor: [
+              Texture.from(
+                new URL('../assets/enemy.png', import.meta.url).toString()
+              ),
+            ],
+            actorAttack: [
+              Texture.from(
+                new URL('../assets/enemy.png', import.meta.url).toString()
+              ),
+            ],
+            actorHit: [
+              Texture.from(
+                new URL('../assets/enemy.png', import.meta.url).toString()
+              ),
+            ],
           },
           target: emptySprite as Character,
         });

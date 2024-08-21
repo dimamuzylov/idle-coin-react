@@ -85,9 +85,11 @@ export class Enemy extends Character {
         power: this.power,
       },
       textures: {
-        actor: Texture.from(
-          new URL('../assets/projectile.png', import.meta.url).toString()
-        ),
+        actor: [
+          Texture.from(
+            new URL('../assets/projectile.png', import.meta.url).toString()
+          ),
+        ],
       },
       target,
     };

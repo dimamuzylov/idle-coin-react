@@ -1,12 +1,22 @@
-import { Container } from 'pixi.js';
-import { Actor, ActorConfig, ActorConfigMetrics } from './Actor';
+import { Container, Texture } from 'pixi.js';
+import {
+  Actor,
+  ActorConfig,
+  ActorConfigMetrics,
+  ActorConfigTexture,
+} from './Actor';
 import { Projectile, ProjectileConfig } from './Projectile';
 
+export interface CharacterConfigTexture extends ActorConfigTexture {
+  actorAttack: Texture[];
+  actorHit: Texture[];
+}
 export interface CharacterConfigMetrics extends ActorConfigMetrics {
   power: number;
   attackRange: number;
 }
 export interface CharacterConfig extends ActorConfig {
+  textures: CharacterConfigTexture;
   metrics: CharacterConfigMetrics;
   target: Character | undefined;
 }
@@ -15,12 +25,16 @@ export abstract class Character extends Actor<Character> {
   #health = 100;
   #power = 10;
   #attackRange = 0;
+  #attackTexture: Texture[] = [];
+  #hitTexture: Texture[] = [];
 
   constructor(config: CharacterConfig) {
     super(config);
 
     this.#power = config.metrics.power;
     this.#attackRange = config.metrics.attackRange;
+    this.#attackTexture = config.textures.actorAttack;
+    this.#hitTexture = config.textures.actorHit;
   }
 
   /*
@@ -65,12 +79,23 @@ export abstract class Character extends Actor<Character> {
     const spot = this.generateProjectile(projectileConfig);
     const root = this.getRoot(this);
     root.addChild(spot);
+
+    if (!this.playing) {
+      this.textures = this.#attackTexture;
+      this.animationSpeed = 0.5;
+      this.play();
+    }
   }
 
   hit(power: number): void {
     if (this.killed) return;
     this.decreaseHealth(power);
     this.updateHealthBar(this.#health);
+
+    if (!this.playing) {
+      this.textures = this.#hitTexture;
+      this.play();
+    }
   }
 
   /**

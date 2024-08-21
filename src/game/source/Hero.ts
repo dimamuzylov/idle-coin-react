@@ -19,7 +19,7 @@ export class Hero extends Character {
       metrics: {
         position: {
           x: this.worldTransform.tx + this.width / 2,
-          y: this.worldTransform.ty + this.height / 2,
+          y: this.worldTransform.ty,
         },
         width: 20,
         height: 20,
@@ -27,9 +27,11 @@ export class Hero extends Character {
         power: this.power,
       },
       textures: {
-        actor: Texture.from(
-          new URL('../assets/projectile.png', import.meta.url).toString()
-        ),
+        actor: [
+          Texture.from(
+            new URL('../assets/projectile.png', import.meta.url).toString()
+          ),
+        ],
       },
       target,
     };
