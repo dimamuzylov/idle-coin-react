@@ -1,11 +1,10 @@
 import { useApp } from '@pixi/react';
 import { useEffect, useState } from 'react';
-import { Enemy } from '../source/Enemy';
 import { Sprite, Texture } from 'pixi.js';
 import { findHeroObject } from '../utils/PixiApplicationUtils';
 import { useGameStore } from '../store/game';
 import { randomNumberFromTo } from '../utils/RandomUtils';
-import { Character } from '../source/Character';
+import { Enemy1 } from '../source/enemies/Enemy1';
 
 const EnemyGeneratorEffects = () => {
   const app = useApp();
@@ -13,6 +12,7 @@ const EnemyGeneratorEffects = () => {
   const [emptySprite, setEmptySprite] = useState<Sprite | null>(null);
 
   useEffect(() => {
+    // @ts-ignore
     let interval: NodeJS.Timeout;
 
     if (!emptySprite) {
@@ -25,39 +25,18 @@ const EnemyGeneratorEffects = () => {
 
     if (emptySprite && hero) {
       interval = setInterval(() => {
-        if (hero.killed || !gameStore.playing || gameStore.paused)
-          return clearInterval(interval);
+        if (hero.killed || !gameStore.playing || gameStore.paused) return clearInterval(interval);
 
-        const enemy = new Enemy({
+        const enemy = new Enemy1({
           metrics: {
             position: {
               x: app.screen.width,
-              y: randomNumberFromTo(20, app.screen.height - 40),
+              y: randomNumberFromTo(16, app.screen.height - 32),
             },
-            width: 20,
-            height: 20,
-            power: 5,
-            speed: Math.random() * (1 - 0.5) + 0.5,
-            attackRange: 0,
+            width: 16,
+            height: 16,
           },
-          textures: {
-            actor: [
-              Texture.from(
-                new URL('../assets/enemy.png', import.meta.url).toString()
-              ),
-            ],
-            actorAttack: [
-              Texture.from(
-                new URL('../assets/enemy.png', import.meta.url).toString()
-              ),
-            ],
-            actorHit: [
-              Texture.from(
-                new URL('../assets/enemy.png', import.meta.url).toString()
-              ),
-            ],
-          },
-          target: emptySprite as Character,
+          target: hero,
         });
         app.stage.addChild(enemy);
       }, 500);

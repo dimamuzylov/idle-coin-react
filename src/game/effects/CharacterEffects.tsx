@@ -50,26 +50,22 @@ const CharacterEffects = () => {
   const gameStore = useGameStore();
 
   useEffect(() => {
+    // @ts-ignore
     let interval: NodeJS.Timeout;
 
     const hero = findHeroObject(app);
 
     if (hero) {
       interval = setInterval(() => {
-        if (hero.killed) gameStore.finish();
-        if (hero.killed || !gameStore.playing || gameStore.paused)
-          return clearInterval(interval);
+        if (hero.killed) {
+          hero.playDeath(() => {
+            gameStore.finish();
+          });
+        }
+        if (hero.killed || !gameStore.playing || gameStore.paused) return clearInterval(interval);
 
         const enemy = getClosestEnemy(app);
-        if (enemy) {
-          hero.attack(enemy);
-          clearInterval(interval);
-        }
-
-        app.stage.children.forEach((child) => {
-          if (child instanceof Enemy && !hero.killed && child.isCollided)
-            child.attack(hero);
-        });
+        if (enemy) hero.attack(enemy);
       }, 300);
     }
 

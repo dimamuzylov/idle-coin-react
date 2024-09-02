@@ -30,15 +30,6 @@ const GameEffects = () => {
     }
   }, [gameStore.paused]);
 
-  useEffect(() => {
-    if (!gameStore.playing) {
-      app.stage.removeChildren();
-    } else {
-    }
-  }, [gameStore.playing]);
-
-  useEffect(() => {}, []);
-
   return (
     <>
       <HeroGeneratorEffects />

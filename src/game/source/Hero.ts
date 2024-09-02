@@ -7,6 +7,18 @@ export class Hero extends Character {
   /*
    * ************************************************************
    *                                                            *
+   *                       PUBLIC METHODS                    *
+   *                                                            *
+   * ************************************************************
+   */
+  playDeath(callback?: () => void): void {
+    super.playDeath();
+    this.onComplete = callback;
+  }
+
+  /*
+   * ************************************************************
+   *                                                            *
    *                       PROTECTED METHODS                    *
    *                                                            *
    * ************************************************************
@@ -14,6 +26,7 @@ export class Hero extends Character {
   protected generateProjectile(config: ProjectileConfig): ProjectileHero {
     return new ProjectileHero(config);
   }
+
   protected createProjectileConfig(target: Character): ProjectileConfig {
     return {
       metrics: {
@@ -27,11 +40,7 @@ export class Hero extends Character {
         power: this.power,
       },
       textures: {
-        actor: [
-          Texture.from(
-            new URL('../assets/projectile.png', import.meta.url).toString()
-          ),
-        ],
+        actor: [Texture.from(new URL('../assets/projectile.png', import.meta.url).toString())],
       },
       target,
     };

@@ -19,7 +19,7 @@ export abstract class Actor<T = unknown> extends AnimatedSprite {
   target: T;
   protected speed: number;
 
-  constructor(config: ActorConfig) {
+  protected constructor(config: ActorConfig) {
     super(config.textures.actor);
 
     this.target = config.target as T;
@@ -41,7 +41,7 @@ export abstract class Actor<T = unknown> extends AnimatedSprite {
 
   /**
    * Move the projectile to the target
-   * @param delta - The time delta
+   * @param _ - The time delta
    */
   move(_: number): void {}
 }

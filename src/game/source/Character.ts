@@ -1,52 +1,65 @@
-import { Container, Texture } from 'pixi.js';
-import {
-  Actor,
-  ActorConfig,
-  ActorConfigMetrics,
-  ActorConfigTexture,
-} from './Actor';
+import { Texture, Ticker } from 'pixi.js';
+import { Actor, ActorConfig, ActorConfigMetrics, ActorConfigTexture } from './Actor';
 import { Projectile, ProjectileConfig } from './Projectile';
 
 export interface CharacterConfigTexture extends ActorConfigTexture {
   actorAttack: Texture[];
   actorHit: Texture[];
+  actorMove?: Texture[];
+  actorDeath: Texture[];
 }
+
 export interface CharacterConfigMetrics extends ActorConfigMetrics {
   power: number;
   attackRange: number;
+  /**
+   * The attack speed of the character in milliseconds.
+   */
+  attackSpeed: number;
 }
+
 export interface CharacterConfig extends ActorConfig {
   textures: CharacterConfigTexture;
   metrics: CharacterConfigMetrics;
   target: Character | undefined;
 }
 
+type CharacterAnimation = 'attack' | 'hit' | 'move' | 'idle' | 'death';
+
 export abstract class Character extends Actor<Character> {
   #health = 100;
   #power = 10;
   #attackRange = 0;
-  #attackTexture: Texture[] = [];
-  #hitTexture: Texture[] = [];
+  #attackSpeed = 0;
+  #lastAttackTime = 0;
+
+  #animationSheet: Record<CharacterAnimation, Texture[]>;
 
   constructor(config: CharacterConfig) {
     super(config);
 
+    this.#attackSpeed = config.metrics.attackSpeed;
     this.#power = config.metrics.power;
-    this.#attackRange = config.metrics.attackRange;
-    this.#attackTexture = config.textures.actorAttack;
-    this.#hitTexture = config.textures.actorHit;
+    this.#animationSheet = {
+      idle: config.textures.actor,
+      attack: config.textures.actorAttack,
+      hit: config.textures.actorHit || [],
+      move: config.textures.actorMove || [],
+      death: config.textures.actorDeath || [],
+    };
   }
 
   /*
    * ************************************************************
    *                                                            *
-   *                       PUBLIC GETTERS                       *
+   *                       PUBLIC METHODS                       *
    *                                                            *
    * ************************************************************
    */
   set attackRange(value: number) {
     this.#attackRange = value;
   }
+
   get attackRange(): Readonly<number> {
     return this.#attackRange;
   }
@@ -67,40 +80,23 @@ export abstract class Character extends Actor<Character> {
     return false;
   }
 
-  /*
-   * ************************************************************
-   *                                                            *
-   *                       PUBLIC METHODS                       *
-   *                                                            *
-   * ************************************************************
-   */
   attack(target: Character): void {
     const projectileConfig = this.createProjectileConfig(target);
     const spot = this.generateProjectile(projectileConfig);
-    const root = this.getRoot(this);
-    root.addChild(spot);
-
-    if (!this.playing) {
-      this.textures = this.#attackTexture;
-      this.animationSpeed = 0.5;
-      this.play();
-    }
+    this.parent.addChild(spot);
+    this.playAnimation('attack', this.#attackSpeed / 1000);
   }
 
   hit(power: number): void {
     if (this.killed) return;
     this.decreaseHealth(power);
     this.updateHealthBar(this.#health);
-
-    if (!this.playing) {
-      this.textures = this.#hitTexture;
-      this.play();
-    }
+    this.playAnimation('hit', 1, true);
   }
 
   /**
    * Update the health bar of the character.
-   * @param value The value to update the health bar.
+   * @param _ - The value to update the health bar.
    */
   updateHealthBar(_: number): void {}
 
@@ -112,14 +108,29 @@ export abstract class Character extends Actor<Character> {
    * ************************************************************
    */
 
+  protected get canAttack(): boolean {
+    return Ticker.shared.lastTime - this.#lastAttackTime >= this.#attackSpeed;
+  }
+
+  protected updateLastAttackTime(): void {
+    this.#lastAttackTime = Ticker.shared.lastTime;
+  }
+
   /**
    * Generate a projectile.
    * @param config The projectile configuration.
    */
-  protected abstract generateProjectile(_: ProjectileConfig): Projectile;
-  protected abstract createProjectileConfig(
-    target: Character
-  ): ProjectileConfig;
+  protected abstract generateProjectile(config: ProjectileConfig): Projectile;
+
+  protected abstract createProjectileConfig(target: Character): ProjectileConfig;
+
+  protected playMove(): void {
+    this.playAnimation('move', 0.3);
+  }
+
+  protected playDeath(): void {
+    this.playAnimation('death', 0.2);
+  }
 
   /*
    * ************************************************************
@@ -132,7 +143,14 @@ export abstract class Character extends Actor<Character> {
     this.#health -= value;
   }
 
-  private getRoot(container: Container): Container {
-    return container.parent ? this.getRoot(container.parent) : container;
+  private playAnimation(animation: CharacterAnimation, speed?: number, force?: boolean): void {
+    if (this.playing && !force) return;
+
+    this.textures = this.#animationSheet[animation];
+    this.animationSpeed = speed || 1;
+    this.play();
+    this.onComplete = () => {
+      this.textures = this.#animationSheet.idle;
+    };
   }
 }
