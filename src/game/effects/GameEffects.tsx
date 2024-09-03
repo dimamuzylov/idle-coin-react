@@ -1,6 +1,5 @@
 import HeroGeneratorEffects from './HeroGeneratorEffects';
 import EnemyGeneratorEffects from './EnemyGeneratorEffects';
-import CharacterEffects from './CharacterEffects';
 import { useApp } from '@pixi/react';
 import { useGameStore } from '../store/game';
 import { useEffect } from 'react';
@@ -34,7 +33,6 @@ const GameEffects = () => {
     <>
       <HeroGeneratorEffects />
       <EnemyGeneratorEffects />
-      <CharacterEffects />
     </>
   );
 };

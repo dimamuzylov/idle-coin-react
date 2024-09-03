@@ -1,11 +1,11 @@
 import { Ticker } from 'pixi.js';
 import { Character, CharacterConfig, CharacterConfigMetrics } from './Character';
 import { Health } from './Health';
-import { ProjectileConfig } from './Projectile';
 import { ProjectileEnemy } from './ProjectileEnemy';
 
 export interface EnemyConfigMetrics extends CharacterConfigMetrics {
   speed: number;
+  attackRange: number;
 }
 
 export interface EnemyConfig extends CharacterConfig {
@@ -14,11 +14,14 @@ export interface EnemyConfig extends CharacterConfig {
 }
 
 export abstract class Enemy extends Character {
-  id = Math.random().toString(36).substr(2, 9);
+  #id = Math.random().toString(36).substr(2, 9);
   #healthBar: Health;
+  #attackRange = 0;
 
   protected constructor(config: EnemyConfig) {
     super(config);
+
+    this.#attackRange = config.metrics.attackRange;
 
     this.anchor.x = 1;
     this.scale.x = -1;
@@ -39,29 +42,17 @@ export abstract class Enemy extends Character {
   /*
    * ************************************************************
    *                                                            *
-   *                       PUBLIC GETTERS                       *
-   *                                                            *
-   * ************************************************************
-   */
-  get isCollided(): boolean {
-    return this.target.position.x + this.target.width >= this.position.x - this.attackRange;
-  }
-
-  /*
-   * ************************************************************
-   *                                                            *
    *                       PUBLIC METHODS                       *
    *                                                            *
    * ************************************************************
    */
-  move(delta: number): void {
-    if (!this.target) return;
-    this.position.x -= delta * this.speed;
-    this.playMove();
+  get id(): Readonly<string> {
+    return this.#id;
   }
 
-  updateHealthBar(health: number): void {
-    this.#healthBar.updateHealth(health);
+  hit(power: number) {
+    super.hit(power);
+    this.updateHealthBar(this.health);
   }
 
   /*
@@ -71,9 +62,7 @@ export abstract class Enemy extends Character {
    *                                                            *
    * ************************************************************
    */
-  protected abstract generateProjectile(_: ProjectileConfig): ProjectileEnemy;
-
-  protected abstract createProjectileConfig(_: Character): ProjectileConfig;
+  protected abstract generateProjectile(_: Character): ProjectileEnemy;
 
   /*
    * ************************************************************
@@ -82,14 +71,28 @@ export abstract class Enemy extends Character {
    *                                                            *
    * ************************************************************
    */
+  private get isCollided(): boolean {
+    return this.target.position.x + this.target.width >= this.position.x - this.#attackRange;
+  }
+
+  private updateHealthBar(health: number): void {
+    this.#healthBar.updateHealth(health);
+  }
+
+  private move(delta: number): void {
+    if (!this.target) return;
+    this.position.x -= delta * this.speed;
+    this.playAnimation('move', 0.3);
+  }
+
   private tickerUpdate(delta: number): void {
     if (!this.killed && !this.target?.killed && !this.isCollided) {
       this.move(delta);
-    } else if (!this.target.killed && this.isCollided && this.canAttack) {
+    } else if (!this.target.killed && this.isCollided && this.isLastAttackTimeValid) {
       this.attack(this.target);
       this.updateLastAttackTime();
     } else if (this.killed && !this.playing) {
-      this.playDeath();
+      this.playAnimation('death', 0.2);
       this.onComplete = () => {
         Ticker.shared.remove(this.tickerUpdate, this);
         this.destroy();

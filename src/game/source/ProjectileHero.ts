@@ -4,28 +4,19 @@ export class ProjectileHero extends Projectile {
   /*
    * ************************************************************
    *                                                            *
-   *                       PUBLIC GETTERS                       *
+   *                       PROTECTED METHODS                    *
    *                                                            *
    * ************************************************************
    */
-
-  get isCollided(): boolean {
+  protected get isCollided(): boolean {
     if (!this.target) return true;
     const distance = Math.sqrt(
-      Math.pow(this.target.position.x - this.position.x, 2) +
-        Math.pow(this.target.position.y - this.position.y, 2)
+      Math.pow(this.target.position.x - this.position.x, 2) + Math.pow(this.target.position.y - this.position.y, 2),
     );
     return distance <= this.width;
   }
 
-  /*
-   * ************************************************************
-   *                                                            *
-   *                       PUBLIC METHODS                       *
-   *                                                            *
-   * ************************************************************
-   */
-  move(delta: number): void {
+  protected move(delta: number): void {
     if (!this.target) return;
     const targetX = this.target.position.x - this.position.x;
     const targetY = this.target.position.y - this.position.y;

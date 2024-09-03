@@ -30,18 +30,4 @@ export abstract class Actor<T = unknown> extends AnimatedSprite {
 
     this.loop = false;
   }
-
-  /*
-   * ************************************************************
-   *                                                            *
-   *                       PUBLIC METHODS                       *
-   *                                                            *
-   * ************************************************************
-   */
-
-  /**
-   * Move the projectile to the target
-   * @param _ - The time delta
-   */
-  move(_: number): void {}
 }

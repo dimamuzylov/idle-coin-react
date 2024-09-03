@@ -30,11 +30,20 @@ export abstract class Projectile extends Actor<Character> {
    *                                                            *
    * ************************************************************
    */
-  abstract get isCollided(): boolean;
-
   get power(): Readonly<number> {
     return this.#power;
   }
+
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PROTECTED METHODS                    *
+   *                                                            *
+   * ************************************************************
+   */
+  protected abstract get isCollided(): boolean;
+
+  protected abstract move(delta: number): void;
 
   /*
    * ************************************************************
@@ -45,7 +54,7 @@ export abstract class Projectile extends Actor<Character> {
    */
   private tickerUpdate(delta: number) {
     if (this.isCollided) {
-      this.target?.hit(this.power);
+      this.target?.hit(this.#power);
       this.destroy();
       Ticker.shared.remove(this.tickerUpdate, this);
     } else {

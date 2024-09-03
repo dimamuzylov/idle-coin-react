@@ -4,24 +4,16 @@ export class ProjectileEnemy extends Projectile {
   /*
    * ************************************************************
    *                                                            *
-   *                       PUBLIC GETTERS                       *
+   *                       PROTECTED METHODS                    *
    *                                                            *
    * ************************************************************
    */
-
-  get isCollided(): boolean {
+  protected get isCollided(): boolean {
     if (!this.target) return true;
     return this.position.x >= this.target.position.x;
   }
 
-  /*
-   * ************************************************************
-   *                                                            *
-   *                       PUBLIC METHODS                       *
-   *                                                            *
-   * ************************************************************
-   */
-  move(delta: number): void {
+  protected move(delta: number): void {
     this.position.x -= delta * this.speed;
   }
 }
