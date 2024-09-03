@@ -23,7 +23,27 @@ export class ProjectileHero extends Projectile {
 
     const distance = Math.sqrt(targetX * targetX + targetY * targetY);
 
+    this.rotation = this.rotateToPoint(
+      this.target.position.x,
+      this.target.position.y,
+      this.position.x,
+      this.position.y,
+    );
+
     this.position.x += (targetX / distance) * delta * this.speed;
     this.position.y += (targetY / distance) * delta * this.speed;
+  }
+
+  /*
+   * ************************************************************
+   *                                                            *
+   *                       PRIVATE METHODS                      *
+   *                                                            *
+   * ************************************************************
+   */
+  private rotateToPoint(tx: number, ty: number, x: number, y: number) {
+    const distY = ty - y;
+    const distX = tx - x;
+    return Math.atan2(distY, distX);
   }
 }

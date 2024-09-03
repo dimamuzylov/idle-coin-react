@@ -6,7 +6,7 @@ import { Hero } from '../source/Hero';
 import { findHeroObject } from '../utils/PixiApplicationUtils';
 
 const createHeroSheet = () => {
-  const sheet = BaseTexture.from(new URL('../assets/hero_sprite.png', import.meta.url).toString());
+  const sheet = BaseTexture.from(new URL('../assets/hero/hero_sprite.png', import.meta.url).toString());
   const width = 16;
   const height = 18;
 
@@ -67,7 +67,6 @@ const HeroGeneratorEffects = () => {
           width: 16,
           height: 16,
           power: 50,
-          attackRange: app.screen.width,
           attackSpeed: 300,
         },
         textures: {

@@ -25,13 +25,13 @@ export class Hero extends Character {
           x: this.worldTransform.tx + this.width / 2,
           y: this.worldTransform.ty,
         },
-        width: 20,
-        height: 20,
+        width: 15,
+        height: 15,
         speed: 10,
         power: this.power,
       },
       textures: {
-        actor: [Texture.from(new URL('../assets/projectile.png', import.meta.url).toString())],
+        actor: [Texture.from(new URL('../assets/hero/hero_projectile.png', import.meta.url).toString())],
       },
       target,
     });
